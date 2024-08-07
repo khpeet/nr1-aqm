@@ -33,9 +33,6 @@ nr1 nerdpack:serve [--profile=<PROFILE>]
 
 Visit [https://one.newrelic.com/?nerdpacks=local](https://one.newrelic.com/?nerdpacks=local), navigate to the Nerdpack, and :sparkles:
 
-## Configuration
-Update `config.json` located under `./nerdlets/` with your accountId, refreshRate (in milliseconds), and optional template dashboard name that will be linked to each account (if it exists in that account) within the Analytics tab. The refreshRate variable controls how often the Open* pages are refreshed automatically.
-
 ## Deploying this Nerdpack
 
 Open a command prompt in the nerdpack's directory and run the following commands.
