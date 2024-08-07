@@ -129,7 +129,7 @@ const ConditionHistory = ({selectedAccount, timeRange, policies}) => {
           <LineChart
             style={{display: 'inline-block'}}
             accountIds={[selectedAccount.accountId]}
-            query={`FROM NrAiIncident SELECT count(*) as 'Open Incidents' where event = 'open' and conditionId = ${Number(selectedCondition.id)} ${timeClause} TIMESERIES MAX`}
+            query={`FROM NrAiIncident SELECT count(*) as 'Open Incidents' where event = 'open' and conditionId = ${Number(selectedCondition.id)} ${timeClause} facet priority TIMESERIES MAX`}
             fullWidth
           />
         </div>

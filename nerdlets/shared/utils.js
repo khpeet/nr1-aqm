@@ -19,7 +19,7 @@ export const getConditionTimeline = async (account, conditionId, timeClause) => 
   });
 
   const result = data?.data?.actor;
-  const all = {'critical': result?.criticalTimestamps?.results[0]?.critical_times, 'warning': result?.warningTimestamps?.results[0]?.warning_times, 'muted': result?.mutedTimestamps?.results[0]?.muted_times }
+  const all = {'warning': result?.warningTimestamps?.results[0]?.warning_times, 'critical': result?.criticalTimestamps?.results[0]?.critical_times, 'muted': result?.mutedTimestamps?.results[0]?.muted_times }
   return all;
 
 }
