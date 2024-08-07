@@ -1,9 +1,6 @@
 import React from 'react';
 import { Tooltip } from 'nr1';
 
-//TODO:
-  //muted needs to be rendered special - as an-inline overlay on top of critical/warning - opaque/visibility props?
-
 const ConditionTimeline = ({timeline, timeRange}) => {
   const start = new Date(Date.now() - timeRange.duration);
   const end = new Date(Date.now());

@@ -5,10 +5,6 @@ import { getAlertCounts } from '../shared/utils';
 import async from 'async';
 import Drilldown from './drilldown';
 
-//TODO:
-//description that explains what to do on initial screen
-//default sorting # noticiations ascending
-
 export default class OverviewPage extends React.Component {
   constructor(props) {
     super(props);
