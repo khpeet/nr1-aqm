@@ -10,15 +10,13 @@ const Notifications = ({selectedAccount, issues}) => {
 
   if (issues.unsentIssues.length > 0) {
     return useMemo(() => {
-      const headers = [{label: 'ID', ref: 'issueId'}, {label: 'Policy', ref: 'policyName'},{label: 'Condition', ref: 'conditionName'}, {label: 'Title', ref: 'title'}, {label: 'Priority', ref: 'priority'}, {label: 'Muted', ref: 'mutingState'}];
+      const headers = [{label: 'ID', ref: 'issueId'}, {label: 'Policy', ref: 'policyName'},{label: 'Condition', ref: 'conditionName'}, {label: 'Title', ref: 'title'}];
 
       const filtered = issues.unsentIssues.filter(i => {
         return (
-          i.policyName.toLowerCase().includes(searchText.toLowerCase()) ||
-          i.conditionName.toLowerCase().includes(searchText.toLowerCase()) ||
-          i.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          i.priority.toLowerCase().includes(searchText.toLowerCase()) ||
-          i.mutingState.toLowerCase().includes(searchText.toLowerCase())
+          i.policyName[0].toLowerCase().includes(searchText.toLowerCase()) ||
+          i.conditionName[0].toLowerCase().includes(searchText.toLowerCase()) ||
+          i.title[0].toLowerCase().includes(searchText.toLowerCase())
         );
       });
 
@@ -49,11 +47,9 @@ const Notifications = ({selectedAccount, issues}) => {
               <TableRowCell>
                 <Link to={`https://radar-api.service.newrelic.com/accounts/${selectedAccount.accountId.toString()}/issues/${item.issueId}?notifier=&action=`}>{item.issueId.substring(0, 8)}</Link>
               </TableRowCell>
-              <TableRowCell>{item.policyName}</TableRowCell>
-              <TableRowCell>{item.conditionName}</TableRowCell>
-              <TableRowCell>{item.name}</TableRowCell>
-              <TableRowCell>{item.priority}</TableRowCell>
-              <TableRowCell>{item.mutingState}</TableRowCell>
+              <TableRowCell>{item.policyName[0]}</TableRowCell>
+              <TableRowCell>{item.conditionName[0]}</TableRowCell>
+              <TableRowCell>{item.title[0]}</TableRowCell>
             </TableRow>
           )}
         </Table>

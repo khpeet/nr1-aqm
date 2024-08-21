@@ -489,100 +489,96 @@ export const getNotifications = async (account, sinceClause) => {
 //   return final;
 // }
 
-export const getIssues = async (account, cursor) => { //GraphQL pagination is very slow over long time ranges // NRQL times out at long time ranges with uniques()-facet combos + wouldn't be fully accurate
+export const getIssues = async (account, cursor, timeWindow) => { //GraphQL pagination is very slow over long time ranges // NRQL times out at long time ranges with uniques()-facet combos + wouldn't be fully accurate
   let gql = ``;
   if (cursor == null) {
-    gql = `
-    {
-      actor {
-        entitySearch(query: "type='ISSUE' and tags.accountId=${account.accountId}") {
-          results {
-            entities {
-              name
-              tags {
-                key
-                values
-              }
-            }
-            nextCursor
-          }
-        }
-      }
-    }
-    `;
+    // gql = `
+    // {
+    //   actor {
+    //     entitySearch(query: "type='ISSUE' and tags.accountId=${account.accountId}") {
+    //       results {
+    //         entities {
+    //           name
+    //           tags {
+    //             key
+    //             values
+    //           }
+    //         }
+    //         nextCursor
+    //       }
+    //     }
+    //   }
+    // }
+    // `;
 
-    // gql = `
-    // {
-    //   actor {
-    //     account(id: ${account.accountId}) {
-    //       aiIssues {
-    //         issues(filter: {states: [ACTIVATED]}
-    //         timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
-    //         ) {
-    //           issues {
-    //             conditionName
-    //             entityGuids
-    //             issueId
-    //             policyName
-    //             title
-    //             activatedAt
-    //             closedAt
-    //             entityNames
-    //             eventType
-    //           }
-    //           nextCursor
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-    // `;
-  } else {
     gql = `
     {
       actor {
-        entitySearch(query: "type='ISSUE' and tags.accountId=${account.accountId}") {
-          results(cursor: "${cursor}") {
-            entities {
-              name
-              tags {
-                key
-                values
+        account(id: ${account.accountId}) {
+          aiIssues {
+            issues(filter: {states: [ACTIVATED]}
+            timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
+            ) {
+              issues {
+                conditionName
+                issueId
+                policyName
+                title
+                activatedAt
+                closedAt
+                eventType
               }
+              nextCursor
             }
-            nextCursor
           }
         }
       }
     }
     `;
+  } else {
     // gql = `
     // {
     //   actor {
-    //     account(id: ${account.accountId}) {
-    //       aiIssues {
-    //         issues(filter: {states: [ACTIVATED]}
-    //           cursor: "${cursor}"
-    //           timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
-    //         ) {
-    //           issues {
-    //             conditionName
-    //             entityGuids
-    //             issueId
-    //             policyName
-    //             title
-    //             activatedAt
-    //             closedAt
-    //             entityNames
-    //             eventType
+    //     entitySearch(query: "type='ISSUE' and tags.accountId=${account.accountId}") {
+    //       results(cursor: "${cursor}") {
+    //         entities {
+    //           name
+    //           tags {
+    //             key
+    //             values
     //           }
-    //           nextCursor
     //         }
+    //         nextCursor
     //       }
     //     }
     //   }
     // }
     // `;
+    gql = `
+    {
+      actor {
+        account(id: ${account.accountId}) {
+          aiIssues {
+            issues(filter: {states: [ACTIVATED]}
+              cursor: "${cursor}"
+              timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
+            ) {
+              issues {
+                conditionName
+                issueId
+                policyName
+                title
+                activatedAt
+                closedAt
+                eventType
+              }
+              nextCursor
+            }
+          }
+        }
+      }
+    }
+    `;
   }
 
   const data = await NerdGraphQuery.query({
@@ -595,15 +591,15 @@ export const getIssues = async (account, cursor) => { //GraphQL pagination is ve
     console.debug(data.error);
     return null;
   }
-  let result = data?.data?.actor?.entitySearch?.results?.entities;
-  let nextCursor = data?.data?.actor?.entitySearch?.results?.nextCursor;
-  // let result = data?.data?.actor?.account?.aiIssues?.issues?.issues;
-  // let nextCursor = data?.data?.actor?.account?.aiIssues?.issues?.nextCursor;
+  // let result = data?.data?.actor?.entitySearch?.results?.entities;
+  // let nextCursor = data?.data?.actor?.entitySearch?.results?.nextCursor;
+  let result = data?.data?.actor?.account?.aiIssues?.issues?.issues;
+  let nextCursor = data?.data?.actor?.account?.aiIssues?.issues?.nextCursor;
 
   if (nextCursor == null) {
     return result;
   } else {
-    const nextResult = await getIssues(account, nextCursor);
+    const nextResult = await getIssues(account, nextCursor, timeWindow);
     return result.concat(nextResult);
   }
 }

@@ -99,10 +99,10 @@ export default class Drilldown extends React.Component {
   async fetchNotificationsAndIssues() {
     const { account, timeRange } = this.props;
 
-    //let issueTimeRange = {'start': Date.now() - timeRange.duration, 'end': Date.now()}; //GraphQL fetching only
+    let issueTimeRange = {'start': Date.now() - timeRange.duration, 'end': Date.now()}; //GraphQL fetching only
     let nrqlTimeRanges = await this.generateDayChunks(timeRange.duration, Date.now());
 
-    let issues = await getIssues(account, null);
+    let issues = await getIssues(account, null, issueTimeRange);
     let notificationsQ = async.queue(async (task, cb) => {
       const notificationSet = await getNotifications(task.account, task.timeWindow);
 
@@ -145,24 +145,24 @@ export default class Drilldown extends React.Component {
     const timePickerDate = new Date(Date.now() - timeRange.duration).valueOf();
 
     const unsentIssues = issues.filter(i => {
-      let issueId = this.pluckTagValue(i.tags, 'issueId');
-      let openTime = this.pluckTagValue(i.tags, 'activatedAt');
-      return (!flattened.includes(issueId) && Number(openTime) > timePickerDate);
+      // let issueId = this.pluckTagValue(i.tags, 'issueId');
+      // let openTime = this.pluckTagValue(i.tags, 'activatedAt');
+      return (!flattened.includes(i.issueId) && Number(i.activatedAt) > timePickerDate);
     });
 
-    for (let u=0; u<unsentIssues.length; u++) {
-      const id = this.pluckTagValue(unsentIssues[u].tags, 'issueId');
-      const policyName = this.pluckTagValue(unsentIssues[u].tags, 'policyName');
-      const conditionName = this.pluckTagValue(unsentIssues[u].tags, 'conditionName');
-      const priority = this.pluckTagValue(unsentIssues[u].tags, 'priority');
-      const mutingState = this.pluckTagValue(unsentIssues[u].tags, 'mutingState');
-
-      unsentIssues[u].issueId = id;
-      unsentIssues[u].policyName = policyName;
-      unsentIssues[u].conditionName = conditionName;
-      unsentIssues[u].priority = priority;
-      unsentIssues[u].mutingState = mutingState;
-    }
+    // for (let u=0; u<unsentIssues.length; u++) {
+    //   const id = this.pluckTagValue(unsentIssues[u].tags, 'issueId');
+    //   const policyName = this.pluckTagValue(unsentIssues[u].tags, 'policyName');
+    //   const conditionName = this.pluckTagValue(unsentIssues[u].tags, 'conditionName');
+    //   const priority = this.pluckTagValue(unsentIssues[u].tags, 'priority');
+    //   const mutingState = this.pluckTagValue(unsentIssues[u].tags, 'mutingState');
+    //
+    //   unsentIssues[u].issueId = id;
+    //   unsentIssues[u].policyName = policyName;
+    //   unsentIssues[u].conditionName = conditionName;
+    //   unsentIssues[u].priority = priority;
+    //   unsentIssues[u].mutingState = mutingState;
+    // }
 
     const unsentPercent = (unsentIssues.length/issues.length)*100
     const final = {'unsentIssues': unsentIssues, 'unsentPercent': unsentPercent.toFixed(2)};
