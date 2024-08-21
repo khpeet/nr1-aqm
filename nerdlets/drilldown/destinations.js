@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { navigation, Table, TableHeader, TableHeaderCell, TableRow, TableRowCell, TextField } from 'nr1';
 
 //TODO:
-//Add delete button to remove destination (per row?)
-//Add global delete button?
+//Export button?
+//Remove duplicates button (if API ever becomes available)
 
 const Destinations = ({selectedAccount, destinations}) => {
   const [searchText, setSearchText] = useState('');

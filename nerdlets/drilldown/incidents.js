@@ -9,9 +9,9 @@ const Incidents = ({selectedAccount, timeRange, incidents, selectedCard}) => {
     let q = ``;
 
     if (type == 'flapping') {
-      q = `FROM NrAiIncident SELECT * where event = 'close' and durationSeconds <= 300 and policyName = '${policy}' and conditionName = '${condition}' ${timeClause}`;
+      q = `FROM NrAiIncident SELECT count(*) where event = 'close' and durationSeconds <= 300 and policyName = '${policy}' and conditionName = '${condition}' ${timeClause} TIMESERIES MAX`;
     } else {
-      q = `FROM NrAiIncident SELECT * where event = 'close' and durationSeconds >= 86400 and policyName = '${policy}' and conditionName = '${condition}' ${timeClause}`;
+      q = `FROM NrAiIncident SELECT count(*) where event = 'close' and durationSeconds >= 86400 and policyName = '${policy}' and conditionName = '${condition}' ${timeClause} TIMESERIES MAX`;
     }
 
     const qBuilder = {
@@ -20,6 +20,11 @@ const Incidents = ({selectedAccount, timeRange, incidents, selectedCard}) => {
         initialActiveInterface: 'nrqlEditor',
         initialAccountId: selectedAccount.accountId,
         initialNrqlValue: q,
+        initialWidget: {
+          visualization: {
+            'id': 'viz.line'
+          }
+        },
         isViewingQuery: true
       }
     }

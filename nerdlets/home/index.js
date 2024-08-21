@@ -12,7 +12,7 @@ const AqmNerdlet = () => {
       accountPicker: false,
       timePicker: true,
       timePickerDefaultOffset: 1000 * 60 * 60 * 24, // default last 24 hours
-      timePickerRanges: [ //TODO: add 3 months
+      timePickerRanges: [
         // { label: '60 minutes', offset: 3600000 },
         // { label: '3 hours', offset: 10800000 },
         // { label: '6 hours', offset: 21600000 },

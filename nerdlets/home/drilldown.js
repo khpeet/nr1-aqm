@@ -55,6 +55,11 @@ export default class Drilldown extends React.Component {
     })
   }
 
+  pluckTagValue(tags, keyToPluck) {
+    let result = tags.find(t => t.key === keyToPluck);
+    return result ? result.values[0] : null;
+  }
+
   generateDayChunks(t, startTime) { //returns 1 day chunks to use in nrql since-until clauses for fetching issues over > 1 day period (more accurate)
     const { timeRange } = this.props;
     const ONE_DAY_MS = 86400000;
@@ -94,10 +99,10 @@ export default class Drilldown extends React.Component {
   async fetchNotificationsAndIssues() {
     const { account, timeRange } = this.props;
 
-    let issueTimeRange = {'start': Date.now() - timeRange.duration, 'end': Date.now()}; //GraphQL fetching only
+    //let issueTimeRange = {'start': Date.now() - timeRange.duration, 'end': Date.now()}; //GraphQL fetching only
     let nrqlTimeRanges = await this.generateDayChunks(timeRange.duration, Date.now());
 
-    let issues = await getIssues(account, null, issueTimeRange);
+    let issues = await getIssues(account, null);
     let notificationsQ = async.queue(async (task, cb) => {
       const notificationSet = await getNotifications(task.account, task.timeWindow);
 
@@ -137,9 +142,27 @@ export default class Drilldown extends React.Component {
     let allResults = await notificationProm;
     let flattened = allResults.flat();
 
+    const timePickerDate = new Date(Date.now() - timeRange.duration).valueOf();
+
     const unsentIssues = issues.filter(i => {
-      return !flattened.includes(i.issueId);
+      let issueId = this.pluckTagValue(i.tags, 'issueId');
+      let openTime = this.pluckTagValue(i.tags, 'activatedAt');
+      return (!flattened.includes(issueId) && Number(openTime) > timePickerDate);
     });
+
+    for (let u=0; u<unsentIssues.length; u++) {
+      const id = this.pluckTagValue(unsentIssues[u].tags, 'issueId');
+      const policyName = this.pluckTagValue(unsentIssues[u].tags, 'policyName');
+      const conditionName = this.pluckTagValue(unsentIssues[u].tags, 'conditionName');
+      const priority = this.pluckTagValue(unsentIssues[u].tags, 'priority');
+      const mutingState = this.pluckTagValue(unsentIssues[u].tags, 'mutingState');
+
+      unsentIssues[u].issueId = id;
+      unsentIssues[u].policyName = policyName;
+      unsentIssues[u].conditionName = conditionName;
+      unsentIssues[u].priority = priority;
+      unsentIssues[u].mutingState = mutingState;
+    }
 
     const unsentPercent = (unsentIssues.length/issues.length)*100
     const final = {'unsentIssues': unsentIssues, 'unsentPercent': unsentPercent.toFixed(2)};
@@ -190,6 +213,9 @@ export default class Drilldown extends React.Component {
     for (let z=0; z<unusedDestinations.length; z++) {
       let matchingObj = allDests.find(a => a.guid === unusedDestinations[z].guid);
       if (matchingObj) {
+        if (matchingObj.type == 'EMAIL') {
+          unusedDestinations[z].name = matchingObj.properties[0].value;
+        }
         unusedDestinations[z].destinationId = matchingObj.id;
         unusedDestinations[z].destinationType = matchingObj.type;
       }
